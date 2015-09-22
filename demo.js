@@ -1,19 +1,5 @@
 $(function() {
-    var data = [{
-        "2015-09-06": {
-            "strife": 1,
-            "longen": 13
-        },
-        "2015-09-07": {
-            "strife": 0,
-            "longen": 15
-        },
-        "total": {
-            "strife": 1,
-            "longen": 28
-        }
-    }];
-    var transformData = function() {
+    var transformData = function(data) {
         var myObj = {};
         var contents = [];
         var maps = [];
@@ -36,22 +22,32 @@ $(function() {
         }
         myObj.contents = contents;
         myObj.maps = maps;
-        // console.log(myObj);
         return myObj;
     }
-    var loadTable = function(myObj) {
-        var htmlTable = new EJS({
-            url: 'demo.ejs'
-        }).render({
-            myObj: myObj
-        });
-        $('.dataTable').html(htmlTable);
-        decorateTable();
+    var loadTable = function() {
+		$.ajax({
+			type: "get",
+			datatype: "json",
+			url: "data.js",
+			success: function(data) {
+				var myObj = transformData(JSON.parse(data));
+				var htmlTable = new EJS({
+					url: 'demo.ejs'
+				}).render({
+					myObj: myObj
+				});
+				$('.dataTable').html(htmlTable);
+				decorateTable();
+			},
+			error: function(e) {
+				console.log(e);
+			}
+		});
     };
     var decorateTable = function() {
         $("tr:odd").addClass("odd");
         $("tr:even").addClass("even");
         $("th").addClass("thead");
     }
-    loadTable(transformData(data));
+	$("#genTableBtn").bind("click", loadTable);
 });
